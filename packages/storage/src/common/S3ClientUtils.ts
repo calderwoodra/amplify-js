@@ -12,7 +12,11 @@ import {
 	FinalizeRequestMiddleware,
 	HandlerExecutionContext,
 } from '@aws-sdk/types';
-import { S3ClientConfig, S3Client } from '@aws-sdk/client-s3';
+import {
+	S3ClientConfig,
+	S3Client,
+	S3ClientResolvedConfig,
+} from '@aws-sdk/client-s3';
 import { CancelTokenSource } from 'axios';
 import * as events from 'events';
 import { AxiosHttpHandler } from '../providers/axios-http-handler';
@@ -88,7 +92,7 @@ const isTimeSkewedError = (err: any): boolean =>
 
 // we want to take the S3Client config in parameter so we can modify it's systemClockOffset
 export const autoAdjustClockskewMiddleware =
-	(config: S3ClientConfig): FinalizeRequestMiddleware<any, any> =>
+	(config: S3ClientResolvedConfig): FinalizeRequestMiddleware<any, any> =>
 	(next, _context: HandlerExecutionContext) =>
 	async args => {
 		try {
@@ -159,7 +163,7 @@ export const createS3Client = (
 		credentials: credentialsProvider,
 		customUserAgent: getAmplifyUserAgent(),
 		...localTestingConfig,
-		requestHandler: new AxiosHttpHandler({}, emitter, cancelTokenSource),
+		requestHandler: new AxiosHttpHandler({}, emitter, cancelTokenSource) as any,
 		useAccelerateEndpoint,
 	});
 	s3client.middlewareStack.remove(SET_CONTENT_LENGTH_HEADER);
